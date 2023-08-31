@@ -1,0 +1,16 @@
+{
+  "name": "amazonproject",
+  "version": "1.0.0",
+  "description": "amazon project Playwright Typescript",
+  "main": "index.js",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "playwright": "^1.37.1",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.37.1"
+  }
+}
