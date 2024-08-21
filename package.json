@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "description": "amazon project Playwright Typescript",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "format": "prettier --write ."
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "playwright": "^1.37.1",
-    "typescript": "^5.2.2"
+    "@playwright/test": "^1.46.1",
+    "typescript": "^5.5"
   },
   "devDependencies": {
-    "@playwright/test": "^1.37.1"
+    "npm": "^10.8.2",
+    "prettier": "^3.3.3"
   }
 }

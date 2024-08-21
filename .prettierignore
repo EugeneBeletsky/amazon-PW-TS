@@ -1,0 +1,13 @@
+**/.git
+**/node_modules
+
+cypress
+test_files
+
+**/*.js
+**/*.yaml
+**/*.json
+
+.prettierrc
+*.config.ts
+README.md
