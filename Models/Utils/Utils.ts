@@ -1,25 +1,23 @@
-import { Page, expect } from "@playwright/test"
-import s from "./locators"
-
+import { Page, Locator, expect, test } from "@playwright/test";
 
 export default class Utils {
   page: Page;
+
   constructor(page: Page) {
     this.page = page;
   }
 
-    async navigateTo(url:string) {
+    public async navigateTo(url:string) {
         await this.page.goto(`${url}`, { waitUntil: 'load' })
     }
 
-    async checkPageURL(url:string) {
+    public async checkPageURL(url:string) {
         const currentURL = await this.page.url();
-        expect(currentURL).toContain(url)
+        await expect(currentURL).toContain(url)
     }
 
-    async cliclOnButton(locator:string) {
-        await this.page.waitForSelector(locator)
-        await this.page.click(locator)
-}
-
+    public async cliclOnButton(locator:Locator): Promise <void> {
+        await locator.waitFor();
+        await locator.click();
+    }
 }
