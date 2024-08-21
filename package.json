@@ -9,11 +9,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "playwright": "^1.37.1",
     "@playwright/test": "^1.46.1",
+    "dotenv": "^16.4.5",
+    "playwright": "^1.37.1",
     "typescript": "^5.5"
   },
   "devDependencies": {
+    "@types/node": "^22.5.0",
     "npm": "^10.8.2",
     "prettier": "^3.3.3"
   }
