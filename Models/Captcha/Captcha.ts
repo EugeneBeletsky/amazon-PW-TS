@@ -13,7 +13,7 @@ export default class Captcha {
     const captchaImage = await this.page.$(LOCATORS.captchaSelector);
     if (captchaImage) {
       console.log('CAPTCHA detected. Exiting the test.');
-      await this.page.screenshot({ path: 'captcha_detected.png' });
+      await this.page.screenshot({ path: './screenshots/captcha_detected.png' });
       console.log(`Test stopped at URL: ${await this.page.url()}`);
       throw new Error('CAPTCHA detected. Test execution stopped.');
     };
