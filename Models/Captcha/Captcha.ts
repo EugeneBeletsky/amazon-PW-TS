@@ -18,6 +18,16 @@ export default class Captcha {
       throw new Error('CAPTCHA detected. Test execution stopped.');
     };
   };
+
+  public async typeCaptcha(captcha:string) {
+    const input = await this.page.locator('#captchacharacters');
+    input.fill(captcha);
+  };
+
+  public async clickContinue() {
+    const button = await this.page.locator('.a-button-text').filter({hasText: 'Continue shopping'});
+    button.click();
+  };
 };
 
 

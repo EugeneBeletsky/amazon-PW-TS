@@ -2,16 +2,28 @@ import { Locator, expect, test } from "@playwright/test";
 import { Page, Selectors } from "playwright";
 import { ElementHandle } from "@playwright/test";
 
-export default class SignIn {
+export const enum AlertType {
+    name = 0,
+    email = 1,
+    pass = 2,
+    repass = 3    
+}
+
+export default class NewAccount {
   page:Page
 
   constructor(page:Page) {
     this.page = page;
   }
 
-  public async signInPageOpens() {
-    const body = await this.page.getByRole('heading', { name: 'Sign in' });
+  public async createAccountPageOpens() {
+    const body = await this.page.getByRole('heading', { name: 'Create account' });
     await expect(body).toBeVisible();
+  }
+
+  public async typeUserName(name:string) {
+    const userInput = await this.page.locator('#ap_customer_name');
+    userInput.fill(name);
   }
 
   public async typeEmail(email:string) {
@@ -24,12 +36,26 @@ export default class SignIn {
     passwordInput.fill(pass);
   }
 
+  public async typeReEnterPassword(pass:string) {
+    const rePassInput = await this.page.locator('#ap_password_check');
+    rePassInput.fill(pass);
+  }
+
+  public async alertIs(alert: string, alertType: AlertType) {
+    const message = await this.page.locator('.a-alert-content').nth(alertType).textContent();
+    await expect(message).toContain(alert);
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+
+
+
   public async getSignInButton(): Promise <Locator> {
     return await this.page.locator('#signInSubmit');
   }
 
   public async getContinueButton(): Promise <Locator> {
-    return await this.page.locator('#continue');
+    return await this.page.getByLabel('Continue');
   }
 
   public async errorBoxIsVisible(state: boolean) {
@@ -42,10 +68,7 @@ export default class SignIn {
     await expect(text).toBe(message);
   }
 
-  public async alertIs(alert: string) {
-    const text = await this.page.locator('.a-alert-content').textContent();
-    await expect(text).toBe(alert);
-  }
+
 
   public async getCreateNewAccountButton(): Promise <Locator> {
     return await this.page.locator('#createAccountSubmit');
