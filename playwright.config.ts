@@ -18,7 +18,7 @@ const config: PlaywrightTestConfig = {
 export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -26,11 +26,19 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  // reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://127.0.0.1:3000',
+
+    // video: 'on-first-retry',  // Record video only on first retry
+    video: 'retain-on-failure',  // Record video only when a test fails
+    // video: 'on',  // Record video for all tests
+    // video: 'off', // Do not record video
+    // videoSize: { width: 1280, height: 720 }, // Optionally set the resolution
+
+    screenshot: 'only-on-failure',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
