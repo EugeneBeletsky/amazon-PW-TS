@@ -1,6 +1,11 @@
 {
     "compilerOptions": {
-      "types": ["node"] // Add "node" here
+      "types": ["node"],
+      "lib": ["es6"],
+      "module": "commonjs",
+      "target": "es6",
+      "esModuleInterop": true,
+      "skipLibCheck": true
     }
   }
   
