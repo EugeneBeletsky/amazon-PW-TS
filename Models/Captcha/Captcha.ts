@@ -1,6 +1,7 @@
 import { Locator, expect, test } from '@playwright/test';
 import { Page, Selectors } from 'playwright';
 import { ElementHandle } from '@playwright/test';
+import { stdin, stdout } from 'node:process';
 import * as readline from 'readline';
 
 export default class Captcha {

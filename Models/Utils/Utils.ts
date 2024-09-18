@@ -1,4 +1,8 @@
 import { Page, Locator, expect, test } from '@playwright/test';
+import * as dotenv from 'dotenv'
+
+dotenv.config({ path: '.env', override: true });
+
 
 export default class Utils {
     page: Page;
@@ -7,8 +11,14 @@ export default class Utils {
         this.page = page;
     }
 
+    private baseURL = process.env.BASE_URL;
+
     public async navigateTo(url: string) {
         await this.page.goto(`${url}`, { waitUntil: 'load' });
+    }
+
+    public async navigateToBaseURL() {
+        await this.page.goto(this.baseURL, {waitUntil: 'load'});
     }
 
     public async checkPageURL(url: string) {
