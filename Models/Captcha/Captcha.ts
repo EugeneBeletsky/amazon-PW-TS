@@ -1,8 +1,8 @@
 import { Locator, expect, test } from '@playwright/test';
 import { Page, Selectors } from 'playwright';
 import { ElementHandle } from '@playwright/test';
-import { stdin, stdout } from 'node:process';
-import * as readline from 'readline';
+// import { stdin, stdout } from 'node:process';
+// import * as readline from 'readline';
 
 export default class Captcha {
     page: Page;
@@ -22,6 +22,7 @@ export default class Captcha {
     }
 
     public async checkCaptchaAndPauseIfPresent() {
+        const readline = require('readline');
         const captchaImage = await this.page.$(LOCATORS.captchaSelector);
         if (captchaImage) {
             console.log('CAPTCHA detected. Pausing the test for manual intervention.');

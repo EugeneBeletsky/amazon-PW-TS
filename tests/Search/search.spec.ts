@@ -5,8 +5,6 @@ import Captcha from '../../Models/Captcha/Captcha';
 import SignIn from '../../Models/SignIn/SignIn';
 import Search from '../../Models/Search/Search';
 
-
-
 test.beforeEach(async ({ page }) => {
     let utils = new Utils(page);
     await utils.navigateToBaseURL();
@@ -23,10 +21,7 @@ test('Search for item', async ({ page }) => {
 
     await homepage.chooseCountryByName('Japan');
 
-
     await search.searchItem('Iphone');
     // await search.thereAreItemsFound('23 results', 'Iphone');
     // await search.sortByOption('price-desc-rank');
 });
-
-

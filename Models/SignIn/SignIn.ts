@@ -83,7 +83,7 @@ export default class SignIn {
         //     await this.page.locator('#nav-link-accountList').hover()
         // }
 
-        await this.page.locator('#nav-link-accountList').hover()
+        await this.page.locator('#nav-link-accountList').hover();
 
         await utils.clickOnButton(await homepage.getSignInButton());
         await signin.signInPageOpens();
@@ -105,5 +105,5 @@ const LOCATORS = {
     alert_text: '#auth-email-invalid-claim-alert .a-alert-content',
     createAccount_button: '#createAccountSubmit',
     forgetPass_button: '#auth-fpp-link-bottom',
-    signedIn_text: '#nav-link-accountList-nav-line-1'
+    signedIn_text: '#nav-link-accountList-nav-line-1',
 };
