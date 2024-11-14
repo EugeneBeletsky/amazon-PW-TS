@@ -3,8 +3,7 @@ to run Prettier to specific folder use: npx prettier --write src/
 to run Prettier to specific file use: npx prettier --write src/index.ts
 
 
-
- to run specific spec file with browser use: npx playwright test tests/SignIn/signin.spec.ts --headed
+to run specific spec file with browser use: npx playwright test tests/SignIn/signin.spec.ts --headed
 
 
 You can filter the tests based on the tag you add in the test name using Playwright's --grep option. For example, if you want to run only the @smoke tests, you can do it like this:
