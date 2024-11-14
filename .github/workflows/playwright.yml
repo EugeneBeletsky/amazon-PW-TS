@@ -1,7 +1,9 @@
 name: Playwright Tests
-on:  
+on:
+  push:
+    branches: [ master, test ]
   pull_request:
-    branches: [ main, master, test ]
+    branches: [ master, test ]
 jobs:
   playwright:
     name: 'Playwright Tests'
