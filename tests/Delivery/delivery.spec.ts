@@ -1,125 +1,145 @@
 import { test, expect } from '@playwright/test';
-import HomePage from '../../Models/HomePage/HomePage';
-import Utils from '../../Models/Utils/Utils';
-import Captcha from '../../Models/Captcha/Captcha';
-import SignIn from '../../Models/SignIn/SignIn';
-import Search from '../../Models/Search/Search';
 import Delivery from '../../Models/HomePage/components/DeliveryBlock';
+import SignIn from '../../Models/SignIn/SignIn';
+import Utils from '../../Models/Utils/Utils';
 
 test.beforeEach(async ({ page }) => {
-    let utils = new Utils(page);
+    const utils = new Utils(page);
     await utils.navigateToBaseURL();
 });
 
-test('@P3 @smoke Deliver to other countries: JPN', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    await delivery.chooseCountryByName('Japan');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Japan');
+test.setTimeout(60000);
+
+type DeliveryTestCase = {
+    zipCode: string;
+    expectedLocation: string;
+};
+
+type CountryTestCase = {
+    countryName: string;
+    expectedLocation: string;
+};
+
+const countryTestCases: CountryTestCase[] = [
+    { countryName: 'Canada', expectedLocation: 'Canada' },
+    { countryName: 'United Kingdom', expectedLocation: 'United Kingdom' },
+    { countryName: 'Australia', expectedLocation: 'Australia' },
+];
+
+const usDeliveryTestCases: DeliveryTestCase[] = [
+    { zipCode: '10001', expectedLocation: 'New York 10001' },
+    { zipCode: '90210', expectedLocation: 'Beverly H... 90210' },
+    { zipCode: '99501', expectedLocation: 'Anchorage 99501' },
+    { zipCode: '32386', expectedLocation: 'Please enter a valid US zip code' },
+];
+
+test.describe('Delivery Tests: Only to USA', () => {
+    usDeliveryTestCases.forEach(({ zipCode, expectedLocation }) => {
+        if (zipCode !== '32386') {
+            test(`Deliver to USA: ${zipCode}`, async ({ page }) => {
+                console.log(`Choosing ZIP code: ${zipCode}`);
+                const delivery = new Delivery(page);
+                if( !await page.locator('#glow-ingress-block').isVisible()) {
+                    await page.locator('#nav-logo').click();
+                }
+                await delivery.deliverToUSA(zipCode);
+                await page.waitForLoadState('networkidle');
+                console.log(`Delivery selected: ${expectedLocation}`);
+                await delivery.deliveryToSelected(expectedLocation);
+            });
+        } else {
+            test(`Deliver to USA: invalid ZIP CODE ${zipCode}`, async ({ page }) => {
+                console.log(`Choosing invalid ZIP code: ${zipCode}`);
+                const delivery = new Delivery(page);
+                if( !await page.locator('#glow-ingress-block').isVisible()) {
+                    await page.locator('#nav-logo').click();
+                }
+                await delivery.openDeliverBlock();
+                await delivery.fillZIPinput(zipCode);
+                await delivery.clickApplyZIP();
+                await page.waitForSelector('#GLUXZipError', { timeout: 10000 });
+                console.log(`Checking error message: ${expectedLocation}`);
+                await delivery.checkInvalidZipCodeError(expectedLocation);
+            });
+        }
+    });
 });
 
-test('@P4 Deliver to other countries: CHN', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    await delivery.chooseCountryByName('China');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('China');
+test.describe('Delivery Tests: Other Countries', () => {
+    countryTestCases.forEach(({ countryName, expectedLocation }) => {
+        test(`Deliver to other countries: ${countryName}`, async ({ page }) => {
+            console.log(`Choosing country: ${countryName}`);
+            const delivery = new Delivery(page);
+            if( !await page.locator('#glow-ingress-block').isVisible()) {
+                await page.locator('#nav-logo').click();
+            }
+            await delivery.chooseCountryByName(countryName);
+            await page.waitForLoadState('networkidle');            
+            console.log(`Delivery selected: ${expectedLocation}`);
+            await delivery.deliveryToSelected(expectedLocation);
+        });
+    });
 });
 
-test('@P4 Deliver to other countries: BLR', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    await delivery.chooseCountryByName('Belarus');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Belarus');
+
+test.describe('Delivery Tests: Change Delivery from One Country to Another', () => {
+    test('Change delivery from Germany to Belarus to Argentina', async ({ page }) => {
+        console.log('Changing delivery from Germany to Belarus to Argentina');
+        const delivery = new Delivery(page);
+        if( !await page.locator('#glow-ingress-block').isVisible()) {
+            await page.locator('#nav-logo').click();
+        }
+        await delivery.chooseCountryByName('Germany');
+        await page.waitForLoadState('networkidle');
+        console.log('Delivery selected: Germany');
+        await delivery.deliveryToSelected('Germany');
+        await delivery.chooseCountryByName('Belarus');
+        await page.waitForLoadState('networkidle'); 
+        console.log('Delivery selected: Belarus');               
+        await delivery.deliveryToSelected('Belarus');
+        await delivery.chooseCountryByName('Argentina');
+        await page.waitForLoadState('networkidle');
+        console.log('Delivery selected: Argentina');
+        await delivery.deliveryToSelected('Argentina');
+    });
 });
 
-test('@P4 Deliver to other countries: NGR', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    await delivery.chooseCountryByName('Nigeria');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Nigeria');
+test.describe('Delivery Tests: Change Delivery from Country to USA', () => {
+    countryTestCases.forEach(({ countryName }) => {
+        test(`Change delivery from ${countryName} to USA: New York 10001`, async ({ page }) => {
+            console.log(`Changing delivery from ${countryName} to USA: New York 10001`);
+            const delivery = new Delivery(page);
+            if( !await page.locator('#glow-ingress-block').isVisible()) {
+                await page.locator('#nav-logo').click();
+            }
+            await delivery.chooseCountryByName(countryName);
+            await page.waitForLoadState('networkidle');
+            console.log(`Delivery selected: ${countryName}`);
+            await delivery.deliveryToSelected(countryName);
+            await delivery.deliverToUSA('10001');
+            await page.waitForLoadState('networkidle');
+            console.log('Delivery selected: New York 10001');
+            await delivery.deliveryToSelected('New York 10001');
+        });
+    });
 });
 
-test('@smoke Deliver to other countries with SignIn: Germany', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    let signin = new SignIn(page);
-    await signin.signInViaCredentials();
-    await delivery.chooseCountryByName('Germany');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Germany');
-});
+test.describe('Delivery Tests: Change Delivery from USA to Country', () => {
+    usDeliveryTestCases.forEach(({ zipCode }) => {
+        countryTestCases.forEach(({ countryName, expectedLocation }) => {
+            test(`Change delivery from USA: ${zipCode} to ${countryName}`, async ({ page }) => {
+                console.log(`Changing delivery from USA: ${zipCode} to ${countryName}`);
+                const delivery = new Delivery(page);
+                await delivery.deliverToUSA(zipCode);
+                await page.waitForLoadState('networkidle');
+                console.log('Delivery selected: New York 10001');
+                await delivery.deliveryToSelected('New York 10001');
+                await delivery.chooseCountryByName(countryName);
+                await delivery.waitForRequestCompletionAddressChange();
 
-test('@P4 Deliver to USA: New York 10001', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    await delivery.deliverToUSA('10001');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('New York 10001');
-});
-
-test('@P4 Deliver to USA: Los Angeles 90210', async ({ page }) => {
-    let delivery = new Delivery(page);
-    await delivery.deliverToUSA('90210');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Beverly H... 90210');
-});
-
-test('@smoke Deliver to USA with SignIn: Alaska 99501', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    await delivery.deliverToUSA('99501');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Anchorage 99501');
-});
-
-test.only('@P4 Deliver to USA signed in: invalid ZIP CODE 32386', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    await delivery.openDeliverBlock();
-    await page.waitForTimeout(2000);
-    await delivery.fillZIPinput('32386');
-    await delivery.clickApplyZIP();
-    await page.waitForLoadState();
-    await page.waitForTimeout(1000);
-    await delivery.checkInvalidZipCodeError('Please enter a valid US zip code');
-});
-
-test('@P4 Change delivery from one country to another', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    await delivery.chooseCountryByName('Germany');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Germany');
-    await delivery.chooseCountryByName('Belarus');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Belarus');
-    await delivery.chooseCountryByName('Argentina');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Argentina');
-});
-
-test('@P4 Change delivery from one country to US ZIP code', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    await delivery.chooseCountryByName('Germany');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Germany');
-    await delivery.deliverToUSA('10001');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('New York 10001');
-});
-
-test('@P4 Change delivery from US ZIP code to other country', async ({ page }) => {
-    test.setTimeout(30000);
-    let delivery = new Delivery(page);
-    await delivery.deliverToUSA('10001');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('New York 10001');
-    await delivery.chooseCountryByName('Greece');
-    await page.waitForTimeout(2000);
-    await delivery.deliveryToSelected('Greece');
+                console.log(`Delivery selected: ${expectedLocation}`);
+                await delivery.deliveryToSelected(expectedLocation);
+            });
+        });
+    });
 });

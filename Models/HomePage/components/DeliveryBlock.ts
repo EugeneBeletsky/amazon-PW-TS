@@ -10,11 +10,13 @@ export default class Delivery {
     }
 
     public async openDeliverBlock() {
-        const deliverBlock = await this.page.locator(LOCATORS.deliver_block);
-        deliverBlock.click();
+        const deliverBlock = this.page.locator(LOCATORS.deliver_block);
+        await deliverBlock.waitFor({ state: 'visible', timeout: 10000 });
+        await expect(deliverBlock).toBeEnabled();
+        await deliverBlock.click();
         await this.page.waitForLoadState();
-        const popup = await this.page.locator(LOCATORS.deliver_block_body);
-        expect(popup).toBeVisible();
+        const popup = this.page.locator(LOCATORS.deliver_block_body);
+        await expect(popup).toBeVisible();
     }
 
     public async fillZIPinput(zip: string) {
@@ -22,9 +24,11 @@ export default class Delivery {
         zipInput.fill(zip);
     }
 
-    public async clickApplyZIP() {
-        const applyButton = await this.page.locator('#GLUXZipUpdate');
-        applyButton.click();
+    public async clickApplyZIP() {        
+        const applyButton = this.page.getByLabel('Apply');
+        await applyButton.waitFor({ state: 'visible', timeout: 10000 });
+        await expect(applyButton).toBeEnabled();
+        await applyButton.click();
     }
 
     public async confirmationIsVisible() {
@@ -32,9 +36,12 @@ export default class Delivery {
         await expect(confirmationForUS).toBeVisible();
     }
 
-    public async clickContinueButton() {
-        const continueButton = await this.page.locator('#GLUXConfirmClose');
-        continueButton.click();
+    public async clickContinueButton() {        
+        const continueButtonById = this.page.getByRole('button', { name: 'Continue' })
+        await continueButtonById.waitFor({ state: 'visible', timeout: 10000 });
+        await expect(continueButtonById).toBeEnabled();
+        await continueButtonById.click();
+
     }
 
     public async deliverToUSA(zip: string) {
@@ -43,7 +50,7 @@ export default class Delivery {
         await this.clickApplyZIP();
         await this.page.waitForLoadState();
         await this.confirmationIsVisible();
-        await this.clickContinueButton();
+        await this.clickContinueButton();        
     }
 
     public async checkInvalidZipCodeError(error: string) {
@@ -68,15 +75,24 @@ export default class Delivery {
             .filter({ hasText: countryName })
             .first()
             .click();
-        await this.page.getByRole('button', { name: 'Done' }).click();
-        await this.page.waitForLoadState();
+        await this.page.getByRole('button', { name: 'Done' }).click();        
     }
 
     public async deliveryToSelected(destination: string) {
-        const value = await this.page.locator('#glow-ingress-block').locator('#glow-ingress-line2').textContent();
+        const value = await this.page.locator('#glow-ingress-line2').textContent();
         expect(value).toContain(destination);
     }
-}
+
+    
+    public async waitForRequestCompletionAddressChange() {
+    const requestUrl = 'https://www.amazon.com/portal-migration/hz/glow/address-change?actionSource=glow';
+    const requestPromise = this.page.waitForRequest(request => request.url().includes(requestUrl));    
+    const responsePromise = this.page.waitForResponse(response => response.url().includes(requestUrl));    
+    const request = await requestPromise;
+    const response = await responsePromise;    
+    expect(response.status()).toBe(200);
+    }
+    }
 
 const LOCATORS = {
     deliver_block: '#glow-ingress-block',
