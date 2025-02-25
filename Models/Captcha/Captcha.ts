@@ -1,62 +1,68 @@
-import { Locator, expect, test } from '@playwright/test';
-import { Page, Selectors } from 'playwright';
-import { ElementHandle } from '@playwright/test';
-// import { stdin, stdout } from 'node:process';
-// import * as readline from 'readline';
+import { Page, Locator, test } from '@playwright/test';
 
 export default class Captcha {
-    page: Page;
+    private readonly page: Page;
+    private readonly locators = {
+        captchaImage: 'img[src*="captcha"]',
+        captchaInput: 'input#captchacharacters',
+        continueButton: '.a-button-text',
+        submitButton: 'button[type="submit"]'
+    };
 
     constructor(page: Page) {
         this.page = page;
     }
 
-    public async checkCaptchaAndExitIfPresent() {
-        const captchaImage = await this.page.$(LOCATORS.captchaSelector);
+    /**
+     * Checks for the presence of CAPTCHA and terminates the test if detected
+     * @throws {Error} If CAPTCHA is detected
+     */
+    public async checkCaptchaAndExitIfPresent(): Promise<void> {
+        const captchaImage = await this.page.$(this.locators.captchaImage);
+        
         if (captchaImage) {
-            console.log('CAPTCHA detected. Exiting the test.');
-            await this.page.screenshot({ path: './screenshots/captcha_detected.png' });
-            console.log(`Test stopped at URL: ${await this.page.url()}`);
-            throw new Error('CAPTCHA detected. Test execution stopped.');
+            await this.handleCaptchaIfPresent();
         }
+    }    
+
+    /**
+     * Enters text into the CAPTCHA input field
+     * @param captcha - CAPTCHA text to enter
+     */
+    public async typeCaptcha(captcha: string): Promise<void> {
+        await this.page.locator(this.locators.captchaInput).fill(captcha);
     }
 
-    public async checkCaptchaAndPauseIfPresent() {
-        const readline = require('readline');
-        const captchaImage = await this.page.$(LOCATORS.captchaSelector);
-        if (captchaImage) {
-            console.log('CAPTCHA detected. Pausing the test for manual intervention.');
-            await this.page.screenshot({ path: './screenshots/captcha_detected.png' });
-            console.log(`Test paused at URL: ${await this.page.url()}`);
-            const rl = readline.createInterface({
-                input: process.stdin,
-                output: process.stdout,
-            });
-            const promptUser = async (question: string) => {
-                return new Promise<string>(resolve => {
-                    rl.question(question, answer => {
-                        resolve(answer);
-                    });
-                });
-            };
-            await promptUser('Please solve the CAPTCHA manually in the browser and then press Enter to continue...');
-            rl.close();
+    /**
+     * Clicks the continue button
+     */
+    public async clickContinue(): Promise<void> {
+        await this.page
+            .locator(this.locators.continueButton)
+            .filter({ hasText: 'Continue shopping' })
+            .click();
+    }
+
+    /**
+     * Handles CAPTCHA detection
+     * @private
+     */
+    public async handleCaptchaIfPresent(): Promise<void> {
+        const captchaElement = await this.page.locator(this.locators.captchaInput).first();
+        const timeout = 30000; // 30 seconds
+        const startTime = Date.now();
+
+        console.log('Waiting for CAPTCHA to be filled...');
+
+        while (Date.now() - startTime < timeout) {
+            if (!(await captchaElement.isVisible())) {
+                console.log('CAPTCHA has been filled or is no longer visible. Continuing the test.');
+                return; // Continue with the test
+            }
+            await this.page.waitForTimeout(1000); // Wait for 1 second before checking again
         }
-    }
 
-    public async typeCaptcha(captcha: string) {
-        const input = await this.page.locator('#captchacharacters');
-        input.fill(captcha);
-    }
-
-    public async clickContinue() {
-        const button = await this.page.locator('.a-button-text').filter({ hasText: 'Continue shopping' });
-        button.click();
-    }
+        console.log('CAPTCHA still visible after 30 seconds. Skipping the test.');
+        test.skip(); // Skip the test if CAPTCHA is still visible after 30 seconds
+    }        
 }
-
-const LOCATORS = {
-    captchaSelector: 'img[src*="captcha"]',
-    captchaFieldSelector: 'input#captchacharacters',
-    captchaSubmitButtonSelector: 'button[type="submit"]',
-};

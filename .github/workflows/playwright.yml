@@ -1,13 +1,14 @@
 name: Playwright Tests
-on:
-  push:
-    branches: [ master, test ]
+on:  
   pull_request:
-    branches: [ master, test ]
+    branches: [ master ]
 jobs:
   playwright:
     name: 'Playwright Tests'
     runs-on: ubuntu-latest
+    env:
+      USERNAME: ${{ secrets.USERNAME }}
+      PASSWORD: ${{ secrets.PASSWORD }}
     container:
       image: mcr.microsoft.com/playwright:v1.48.1-jammy
       options: --user 1001
