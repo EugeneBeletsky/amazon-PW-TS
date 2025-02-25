@@ -1,7 +1,7 @@
 import { Page, Locator, expect, test } from '@playwright/test';
 import * as dotenv from 'dotenv';
 import { chromium } from '@playwright/test';
-
+import Captcha from '../Captcha/Captcha';
 dotenv.config({ path: '.env', override: true });
 
 export default class Utils {
@@ -38,8 +38,9 @@ export default class Utils {
 
     // Navigation methods
     public async navigateTo(url: string): Promise<void> {
+        const captcha = new Captcha(this.page);
         await this.page.goto(url, { waitUntil: 'load' });
-        await this.handleCaptchaIfPresent();
+        await captcha.handleCaptchaIfPresent();
     }
 
     public async navigateToBaseURL(): Promise<void> {
@@ -73,16 +74,6 @@ export default class Utils {
         const allowedChars = Utils.CHARS.UPPER + Utils.CHARS.LOWER + Utils.CHARS.NUMBERS;
         const randomString = this.generateRandomString(allowedChars, length);
         return `${randomString}@gmail.com`;
-    }
-
-    // Captcha handling
-    public async handleCaptchaIfPresent(): Promise<void> {
-        const captchaElement = await this.page.locator('input[type="text"]').first();
-        if (await captchaElement.isVisible()) {
-            console.log('Captcha detected during navigation');
-            await this.page.waitForTimeout(5000);
-            test.skip();
-        }
     }
 
     // Private helper methods

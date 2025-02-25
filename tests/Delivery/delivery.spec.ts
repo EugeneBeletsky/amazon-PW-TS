@@ -2,10 +2,12 @@ import { test, expect } from '@playwright/test';
 import Delivery from '../../Models/HomePage/components/DeliveryBlock';
 import SignIn from '../../Models/SignIn/SignIn';
 import Utils from '../../Models/Utils/Utils';
-
+import Captcha from '../../Models/Captcha/Captcha';
 test.beforeEach(async ({ page }) => {
     const utils = new Utils(page);
     await utils.navigateToBaseURL();
+    const captcha = new Captcha(page);
+    await captcha.handleCaptchaIfPresent();
 });
 
 test.setTimeout(60000);

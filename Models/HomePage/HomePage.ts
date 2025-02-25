@@ -1,34 +1,41 @@
-import { Locator, expect, test } from '@playwright/test';
-import { Page, Selectors } from 'playwright';
-import { ElementHandle } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 
 export default class HomePage {
-    page: Page;
+    private readonly page: Page;
+    private readonly locators = {
+        mainLogo: '#nav-logo-sprites',
+        tabs: '.tabs__item',
+        signInButton: 'a[role="link"][name="Sign in"]'
+    };
 
     constructor(page: Page) {
         this.page = page;
     }
 
-    public async navigateToMainPage() {
-        const logo = await this.page.locator(LOCATORS.main_logo);
-        logo.click();
+    /**
+     * Navigates to the main page by clicking the logo
+     */
+    public async navigateToMainPage(): Promise<void> {
+        const logo = await this.page.locator(this.locators.mainLogo);
+        await logo.click();
     }
 
-    public async clickOnTab(name: string) {
-        await this.page.waitForSelector(LOCATORS.tabs);
-        const tabElement = await this.page.locator(LOCATORS.tabs, { hasText: `${name}` });
+    /**
+     * Clicks on a specific tab by name
+     * @param name - The name of the tab to click
+     */
+    public async clickOnTab(name: string): Promise<void> {
+        await this.page.waitForSelector(this.locators.tabs);
+        const tabElement = await this.page.locator(this.locators.tabs, { hasText: `${name}` });
         await tabElement.waitFor({ state: 'visible' });
         await tabElement.click();
     }
 
-    public async getSignInButton(): Promise<Locator> {
-        return await this.page.getByRole('link', { name: 'Sign in', exact: true });
+    /**
+     * Gets the sign in button locator
+     * @returns Locator for the sign in button
+     */
+    public async clickSignInButton(): Promise<void> {
+        await this.page.getByRole('link', { name: 'Sign in', exact: true }).click();
     }
 }
-
-const LOCATORS = {
-    deliver_block: '#glow-ingress-block',
-    deliver_block_body: '.a-popover-wrapper',
-    main_logo: '#nav-logo-sprites',
-    tabs: '.tabs__item',
-};

@@ -1,109 +1,146 @@
-import { Locator, expect, test } from '@playwright/test';
-import { Page, Selectors } from 'playwright';
-import { ElementHandle } from '@playwright/test';
-import HomePage from '../../Models/HomePage/HomePage';
-import Utils from '../../Models/Utils/Utils';
-import Captcha from '../../Models/Captcha/Captcha';
+import { Locator, Page } from '@playwright/test';
+import { expect } from '@playwright/test';
+import HomePage from '../HomePage/HomePage';
+import Utils from '../Utils/Utils';
 import * as dotenv from 'dotenv';
 
 dotenv.config({ path: '.env', override: true });
 
 export default class SignIn {
-    page: Page;
+    private readonly page: Page;
+    private readonly locators = {
+        email: '#ap_email',
+        pass: '#ap_password',
+        signinButton: '#signInSubmit',
+        errorMessage: '#auth-error-message-box',
+        errorMessageText: '.a-list-item',
+        alertText: '#auth-email-invalid-claim-alert .a-alert-content',
+        createAccountButton: '#createAccountSubmit',
+        forgetPassButton: '#auth-fpp-link-bottom',
+        signedInText: '#nav-link-accountList-nav-line-1',
+        accountList: '#nav-link-accountList'
+    };
 
     constructor(page: Page) {
         this.page = page;
     }
 
-    public async signInPageOpens() {
+    /**
+     * Hover over the account list
+     */
+    public async hoverOverAccountList(): Promise<void> {
+        const accountList = await this.page.locator(this.locators.accountList);
+        await accountList.hover();
+    }
+
+    /**
+     * Verifies that sign in page is opened
+     */
+    public async signInPageOpens(): Promise<void> {
         const body = await this.page.getByRole('heading', { name: 'Sign in' });
         await expect(body).toBeVisible();
     }
 
-    public async typeEmail(email: string) {
-        const emailInput = await this.page.locator(LOCATORS.email);
-        emailInput.fill(email);
+    /**
+     * Types email into email input field
+     * @param email - Email to enter
+     */
+    public async typeEmail(email: string): Promise<void> {
+        const emailInput = await this.page.locator(this.locators.email);
+        await emailInput.fill(email);
     }
 
-    public async typePassword(pass: string) {
-        const passwordInput = await this.page.locator(LOCATORS.pass);
-        passwordInput.fill(pass);
+    /**
+     * Types password into password input field
+     * @param pass - Password to enter
+     */
+    public async typePassword(pass: string): Promise<void> {
+        const passwordInput = await this.page.locator(this.locators.pass);
+        await passwordInput.fill(pass);
     }
 
-    public async getSignInButton(): Promise<Locator> {
-        return await this.page.locator(LOCATORS.signin_button);
+    /**
+     * Gets the sign in button locator
+     */
+    public async clickSignInButton(): Promise<void> {
+        await this.page.locator(this.locators.signinButton).click();
     }
 
-    public async getContinueButton(): Promise<Locator> {
-        return await this.page.getByLabel('Continue');
+    /**
+     * Gets the continue button locator
+     */
+    public async clickContinueButton(): Promise<void> {
+        await this.page.getByLabel('Continue').click();
     }
 
-    public async errorBoxIsVisible(state: boolean) {
-        const box = await this.page.locator(LOCATORS.error_message);
+    /**
+     * Verifies error box visibility
+     * @param state - Expected visibility state
+     */
+    public async errorBoxIsVisible(state: boolean): Promise<void> {
+        const box = await this.page.locator(this.locators.errorMessage);
         await expect(box).toBeVisible({ visible: state });
     }
 
-    public async messageIs(message: string) {
-        const text = await this.page.locator(LOCATORS.error_message_text).nth(0).textContent();
+    /**
+     * Verifies error message text
+     * @param message - Expected error message
+     */
+    public async messageIs(message: string): Promise<void> {
+        const text = await this.page.locator(this.locators.errorMessageText).nth(0).textContent();
         await expect(text).toContain(message);
     }
 
-    public async alertIs(alert: string) {
-        const text = await this.page.locator(LOCATORS.alert_text).textContent();
-
+    /**
+     * Verifies alert text
+     * @param alert - Expected alert text
+     */
+    public async alertIs(alert: string): Promise<void> {
+        const text = await this.page.locator(this.locators.alertText).textContent();
         await expect(text).toContain(alert);
     }
 
-    public async getCreateNewAccountButton(): Promise<Locator> {
-        return await this.page.locator(LOCATORS.createAccount_button);
+    /**
+     * Gets the create new account button locator
+     */
+    public async clickCreateNewAccountButton(): Promise<void> {
+        await this.page.locator(this.locators.createAccountButton).click();
     }
 
-    public async getForgotPasswordButton(): Promise<Locator> {
-        return await this.page.locator(LOCATORS.forgetPass_button);
+    /**
+     * Gets the forgot password button locator
+     */
+    public async clickForgotPasswordButton(): Promise<void> {
+        await this.page.locator(this.locators.forgetPassButton).click();
     }
 
-    public async youHaveSuccessSignIn() {
+    /**
+     * Verifies successful sign in
+     */
+    public async youHaveSuccessSignIn(): Promise<void> {
         const name = process.env.NAME;
-        const textValue = await this.page.locator(LOCATORS.signedIn_text).textContent();
+        const textValue = await this.page.locator(this.locators.signedInText).textContent();
         expect(textValue).toContain(`Hello, ${name}`);
         console.log('You have successfully Signed In');
     }
 
-    public async signInViaCredentials() {
+    /**
+     * Performs sign in using environment credentials
+     */
+    public async signInViaCredentials(): Promise<void> {
         const username = process.env.USERNAME;
         const password = process.env.PASSWORD;
-        let captcha = new Captcha(this.page);
-        let utils = new Utils(this.page);
-        let homepage = new HomePage(this.page);
-        let signin = new SignIn(this.page);
-        await captcha.checkCaptchaAndPauseIfPresent();
+        const utils = new Utils(this.page);
+        const homepage = new HomePage(this.page);
         await utils.checkPageURL('amazon');
-
-        // if(!((await homepage.getSignInButton()).isVisible())) {
-        //     await this.page.locator('#nav-link-accountList').hover()
-        // }
-
-        await this.page.locator('#nav-link-accountList').hover();
-
-        await utils.clickOnButton(await homepage.getSignInButton());
-        await signin.signInPageOpens();
-        await signin.typeEmail(username);
-        await utils.clickOnButton(await signin.getContinueButton());
-        await signin.typePassword(password);
-        await utils.clickOnButton(await signin.getSignInButton());
+        await this.hoverOverAccountList();
+        await homepage.clickSignInButton();
+        await this.signInPageOpens();
+        await this.typeEmail(username);
+        await this.clickContinueButton();
+        await this.typePassword(password);
+        await this.clickSignInButton();
         await this.page.waitForLoadState();
-        await signin.youHaveSuccessSignIn();
+        await this.youHaveSuccessSignIn();
     }
 }
-
-const LOCATORS = {
-    email: '#ap_email',
-    pass: '#ap_password',
-    signin_button: '#signInSubmit',
-    error_message: '#auth-error-message-box',
-    error_message_text: '.a-list-item',
-    alert_text: '#auth-email-invalid-claim-alert .a-alert-content',
-    createAccount_button: '#createAccountSubmit',
-    forgetPass_button: '#auth-fpp-link-bottom',
-    signedIn_text: '#nav-link-accountList-nav-line-1',
-};
