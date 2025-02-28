@@ -9,6 +9,7 @@ jobs:
     env:
       USERNAME: ${{ secrets.USERNAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
+      BASE_URL: ${{ secrets.BASE_URL}}
     container:
       image: mcr.microsoft.com/playwright:v1.48.1-jammy
       options: --user 1001
@@ -21,3 +22,18 @@ jobs:
         run: npm ci
       - name: Run your tests
         run: npx playwright test --grep "@smoke"
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results/
+      - name: Generate HTML Report
+        if: always()
+        run: npx playwright show-report test-results/
+      - name: Upload HTML Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-report
+          path: playwright-report/
