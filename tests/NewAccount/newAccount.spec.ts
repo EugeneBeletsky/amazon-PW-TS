@@ -9,6 +9,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 test.beforeEach(async ({ page }) => {
+    await page.waitForTimeout(3000);
     const captcha = new Captcha(page);
     const utils = new Utils(page);
     const homepage = new HomePage(page);

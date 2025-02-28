@@ -8,6 +8,7 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env', override: true });
 
 test.beforeEach(async ({ page }) => {
+    await page.waitForTimeout(3000);
     const utils = new Utils(page);
     const captcha = new Captcha(page);
     await utils.navigateToBaseURL();

@@ -3,6 +3,7 @@ import Utils from '../Models/Utils/Utils';
 import Captcha from '../Models/Captcha/Captcha';
 
 test.beforeEach(async ({ page }) => {
+    await page.waitForTimeout(3000);
     const utils = new Utils(page);
     await utils.navigateToBaseURL();
 });
