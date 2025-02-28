@@ -24,7 +24,7 @@ jobs:
         run: npx playwright test --grep "@smoke"
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: test-results/
@@ -33,7 +33,7 @@ jobs:
         run: npx playwright show-report test-results/
       - name: Upload HTML Report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: html-report
           path: playwright-report/
