@@ -18,7 +18,7 @@ export default class Captcha {
      * @throws {Error} If CAPTCHA is detected
      */
     public async checkCaptchaAndExitIfPresent(): Promise<void> {
-        const captchaImage = await this.page.$(this.locators.captchaImage);
+        const captchaImage = await this.page.locator(this.locators.captchaImage);
         
         if (captchaImage) {
             await this.handleCaptchaIfPresent();

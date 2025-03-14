@@ -1,12 +1,25 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import Delivery from '../../Models/HomePage/components/DeliveryBlock';
 import SignIn from '../../Models/SignIn/SignIn';
 import Utils from '../../Models/Utils/Utils';
 import Captcha from '../../Models/Captcha/Captcha';
-test.beforeEach(async ({ page }) => {
-    const utils = new Utils(page);
+import * as dotenv from 'dotenv';
+
+let page: Page;
+let signin: SignIn;
+let utils: Utils;
+let captcha: Captcha;
+let delivery: Delivery;
+
+dotenv.config({ path: '.env', override: true });
+
+test.beforeEach(async ({ browser }) => {
+    page = await browser.newPage();
+    utils = new Utils(page);
+    captcha = new Captcha(page);
+    signin = new SignIn(page);
+    delivery = new Delivery(page);
     await utils.navigateToBaseURL();
-    const captcha = new Captcha(page);
     await captcha.handleCaptchaIfPresent();
 });
 
@@ -38,9 +51,8 @@ const usDeliveryTestCases: DeliveryTestCase[] = [
 test.describe('Delivery Tests: Only to USA', () => {
     usDeliveryTestCases.forEach(({ zipCode, expectedLocation }) => {
         if (zipCode !== '32386') {
-            test(`Deliver to USA: ${zipCode}`, async ({ page }) => {
+            test(`Deliver to USA: ${zipCode}`, async () => {
                 console.log(`Choosing ZIP code: ${zipCode}`);
-                const delivery = new Delivery(page);
                 if( !await page.locator('#glow-ingress-block').isVisible()) {
                     await page.locator('#nav-logo').click();
                 }
@@ -50,9 +62,8 @@ test.describe('Delivery Tests: Only to USA', () => {
                 await delivery.deliveryToSelected(expectedLocation);
             });
         } else {
-            test(`Deliver to USA: invalid ZIP CODE ${zipCode}`, async ({ page }) => {
+            test(`Deliver to USA: invalid ZIP CODE ${zipCode}`, async () => {
                 console.log(`Choosing invalid ZIP code: ${zipCode}`);
-                const delivery = new Delivery(page);
                 if( !await page.locator('#glow-ingress-block').isVisible()) {
                     await page.locator('#nav-logo').click();
                 }
@@ -69,9 +80,8 @@ test.describe('Delivery Tests: Only to USA', () => {
 
 test.describe('Delivery Tests: Other Countries', () => {
     countryTestCases.forEach(({ countryName, expectedLocation }) => {
-        test(`Deliver to other countries: ${countryName}`, async ({ page }) => {
+        test(`Deliver to other countries: ${countryName}`, async () => {
             console.log(`Choosing country: ${countryName}`);
-            const delivery = new Delivery(page);
             if( !await page.locator('#glow-ingress-block').isVisible()) {
                 await page.locator('#nav-logo').click();
             }
@@ -85,9 +95,8 @@ test.describe('Delivery Tests: Other Countries', () => {
 
 
 test.describe('Delivery Tests: Change Delivery from One Country to Another', () => {
-    test('Change delivery from Germany to Belarus to Argentina', async ({ page }) => {
+    test('Change delivery from Germany to Belarus to Argentina', async () => {
         console.log('Changing delivery from Germany to Belarus to Argentina');
-        const delivery = new Delivery(page);
         if( !await page.locator('#glow-ingress-block').isVisible()) {
             await page.locator('#nav-logo').click();
         }
@@ -108,9 +117,8 @@ test.describe('Delivery Tests: Change Delivery from One Country to Another', () 
 
 test.describe('Delivery Tests: Change Delivery from Country to USA', () => {
     countryTestCases.forEach(({ countryName }) => {
-        test(`Change delivery from ${countryName} to USA: New York 10001`, async ({ page }) => {
+        test(`Change delivery from ${countryName} to USA: New York 10001`, async () => {
             console.log(`Changing delivery from ${countryName} to USA: New York 10001`);
-            const delivery = new Delivery(page);
             if( !await page.locator('#glow-ingress-block').isVisible()) {
                 await page.locator('#nav-logo').click();
             }
@@ -129,9 +137,8 @@ test.describe('Delivery Tests: Change Delivery from Country to USA', () => {
 test.describe('Delivery Tests: Change Delivery from USA to Country', () => {
     usDeliveryTestCases.forEach(({ zipCode }) => {
         countryTestCases.forEach(({ countryName, expectedLocation }) => {
-            test(`Change delivery from USA: ${zipCode} to ${countryName}`, async ({ page }) => {
+            test(`Change delivery from USA: ${zipCode} to ${countryName}`, async () => {
                 console.log(`Changing delivery from USA: ${zipCode} to ${countryName}`);
-                const delivery = new Delivery(page);
                 await delivery.deliverToUSA(zipCode);
                 await page.waitForLoadState('networkidle');
                 console.log('Delivery selected: New York 10001');

@@ -19,7 +19,7 @@ test('Search for item', async ({ page }) => {
     let search = new Search(page);
     await signin.signInViaCredentials();
 
-    await homepage.chooseCountryByName('Japan');
+
 
     await search.searchItem('Iphone');
     // await search.thereAreItemsFound('23 results', 'Iphone');
