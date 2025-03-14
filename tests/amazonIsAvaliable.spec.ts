@@ -9,6 +9,8 @@ let utils: Utils;
 let captcha: Captcha;
 let homepage: HomePage;
 
+test.setTimeout(30 * 1000);
+
 dotenv.config({ path: '.env', override: true });
 
 test.beforeEach(async ({ browser }) => {
