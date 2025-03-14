@@ -30,7 +30,7 @@ jobs:
           path: test-results/
       - name: Generate HTML Report
         if: always()
-        run: npx playwright show-report test-results/
+        run: timeout 10 npx playwright merge-reports test-results/ --reporter html
       - name: Upload HTML Report
         if: always()
         uses: actions/upload-artifact@v4
