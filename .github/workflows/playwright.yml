@@ -30,7 +30,7 @@ jobs:
           path: test-results/
       - name: Generate HTML Report
         if: always()
-        run: npx playwright show-report test-results/ --no-serve
+        run: npx playwright show-report test-results/
       - name: Upload HTML Report
         if: always()
         uses: actions/upload-artifact@v4
