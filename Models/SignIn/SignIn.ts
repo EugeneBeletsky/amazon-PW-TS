@@ -87,7 +87,10 @@ export default class SignIn {
      * @param message - Expected error message
      */
     public async messageIs(message: string): Promise<void> {
-        const text = await this.page.locator(this.locators.errorMessageText).nth(0).textContent();
+        const messageBox = this.page.locator('#auth-error-message-box .a-alert-content');
+        const text = await messageBox.textContent();
+        console.log('Actual error message:', text);
+        console.log('Expected error message:', message);
         await expect(text).toContain(message);
     }
 
@@ -96,8 +99,11 @@ export default class SignIn {
      * @param alert - Expected alert text
      */
     public async alertIs(alert: string): Promise<void> {
-        const text = await this.page.locator(this.locators.alertText).textContent();
-        await expect(text).toContain(alert);
+        const alertBox = await this.page.locator(this.locators.alertText);
+        const textContent = await alertBox.textContent();
+        console.log('Actual alert message:', textContent);
+        console.log('Expected alert message:', alert);
+        await expect(textContent).toContain(alert);
     }
 
     /**
@@ -112,6 +118,25 @@ export default class SignIn {
      */
     public async clickForgotPasswordButton(): Promise<void> {
         await this.page.locator(this.locators.forgetPassButton).click();
+    }
+
+    /**
+     * Verify that forgot password block is opened
+     */
+    public async forgotPasswordBlockIsOpened(): Promise<void> {
+        const forgotPasswordBlock = await this.page.locator('.auth-validate-form');
+        await expect(forgotPasswordBlock).toBeVisible({timeout: 3000});
+    }
+
+    /**
+     * verify current email at forgot password block input field
+     */
+    public async verifyCurrentEmail(email: string): Promise<void> {
+        const emailInput = await this.page.locator('#ap_email');
+        const textContent = await emailInput.inputValue();
+        console.log('Actual email:', textContent);
+        console.log('Expected email:', email);
+        await expect(textContent).toContain(email);
     }
 
     /**
