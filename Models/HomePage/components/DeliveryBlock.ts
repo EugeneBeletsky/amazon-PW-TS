@@ -52,6 +52,13 @@ export default class Delivery {
         await continueButton.click();
     }
 
+    public async clickDoneButton(): Promise<void> {
+        const doneButton = this.page.getByRole('button', { name: 'Done' });
+        await doneButton.waitFor({ state: 'visible', timeout: 10000 });
+        await expect(doneButton).toBeEnabled();
+        await doneButton.click();
+    }
+
     public async deliverToUSA(zip: string): Promise<void> {
         await this.openDeliverBlock();
         await this.fillZIPinput(zip);
