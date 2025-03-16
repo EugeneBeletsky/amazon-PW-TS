@@ -1,78 +1,52 @@
-import { Locator, expect, test } from '@playwright/test';
-import { Page, Selectors } from 'playwright';
-import { ElementHandle } from '@playwright/test';
-import HomePage from '../../Models/HomePage/HomePage';
-import Utils from '../../Models/Utils/Utils';
-import Captcha from '../../Models/Captcha/Captcha';
+import { Page } from 'playwright';
+import SearchBox from './components/SearchBox';
+import TopElements from './components/TopElements';
 import * as dotenv from 'dotenv';
+import { SortOptions } from './components/TopElements';
 
-type SortOptions =
-    | 'relevanceblender' // Featured
-    | 'price-asc-rank' // Price: Low to High
-    | 'price-desc-rank' // Price: High to Low
-    | 'review-rank' // Avg. Customer Review
-    | 'date-desc-rank' // Newest Arrivals
-    | 'exact-aware-popularity-rank'; // Best Sellers
+dotenv.config({ path: '.env', override: true });
 
 export default class Search {
-    page: Page;
+    private readonly page: Page;
+    public readonly searchBox: SearchBox;
+    public readonly topElements: TopElements;
 
     constructor(page: Page) {
         this.page = page;
+        this.searchBox = new SearchBox(page);
+        this.topElements = new TopElements(page);
     }
 
-    public async searchType(value: string) {
-        const search = await this.page.locator(LOCATORS.input);
-        search.fill(value);
+    /**
+     * Performs a search with optional category selection
+     * @param searchTerm - The term to search for
+     * @param category - Optional category to search within
+     */
+    public async performSearch(searchTerm: string, category?: string): Promise<void> {
+        await this.searchBox.searchItem(searchTerm, category);
     }
 
-    public async submitSearch() {
-        await this.page.locator(LOCATORS.submit_input).click();
+    /**
+     * Verifies search results contain expected count of results
+     * @param resultsCount - Expected count of results
+     */
+    public async verifySearchResultsCount(resultsCount: number): Promise<void> {
+        await this.topElements.thereAreItemsCountFound(resultsCount);
     }
 
-    public async clickCategory() {
-        await this.page.locator(LOCATORS.category_button).click();
+    /**
+     * Verifies search results contain expected search term
+     * @param searchTerm - Search term that should appear in results
+     */
+    public async verifySearchResults(searchTerm: string): Promise<void> {
+        await this.topElements.thereAreItemsFoundFor(searchTerm);
     }
 
-    public async pickCategory(category: string) {
-        await this.page
-            .locator(LOCATORS.category_button)
-            .locator('select option')
-            .filter({ hasText: category })
-            .click();
-    }
-
-    public async changeCategory(category: string) {
-        await this.clickCategory();
-        await this.pickCategory(category);
-    }
-
-    public async searchItem(item: string, category?: string) {
-        if (category) {
-            await this.changeCategory(category);
-        }
-        await this.searchType(item);
-        await this.submitSearch();
-    }
-
-    public async thereAreItemsFound(resultsText: string, searchTerm: string) {
-        const resultsDiv = await this.page.locator('.a-section.a-spacing-small.a-spacing-top-small');
-        const resultsTextElement = (await resultsDiv.locator('span').nth(0).textContent()).trim();
-        expect(resultsTextElement).toContain(resultsText);
-        const searchTermElement = resultsDiv.locator('.a-color-state.a-text-bold');
-        const actualSearchTerm = (await searchTermElement.textContent()).trim();
-        expect(actualSearchTerm).toBe(`"${searchTerm}"`);
-    }
-
-    public async sortByOption(sortValue: SortOptions) {
-        const sortDropdown = this.page.locator('#s-result-sort-select');
-        await sortDropdown.selectOption(sortValue);
-        await this.page.waitForLoadState('networkidle');
+    /**
+     * Sorts search results by the specified option
+     * @param sortOption - Option to sort by
+     */
+    public async sortResults(sortOption: SortOptions): Promise<void> {
+        await this.topElements.sortByOption(sortOption);
     }
 }
-
-const LOCATORS = {
-    input: '#twotabsearchtextbox',
-    submit_input: '#nav-search-submit-button',
-    category_button: '#searchDropdownBox',
-};

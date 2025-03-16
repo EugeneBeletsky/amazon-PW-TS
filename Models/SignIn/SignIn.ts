@@ -159,6 +159,7 @@ export default class SignIn {
         const homepage = new HomePage(this.page);
         await utils.checkPageURL('amazon');
         await this.hoverOverAccountList();
+        await this.page.waitForTimeout(1000);
         await homepage.clickSignInButton();
         await this.signInPageOpens();
         await this.typeEmail(username);
