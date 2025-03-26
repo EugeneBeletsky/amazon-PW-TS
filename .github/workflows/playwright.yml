@@ -25,7 +25,7 @@ jobs:
       PASSWORD: ${{ secrets.PASSWORD }}
       BASE_URL: ${{ secrets.BASE_URL}}
     container:
-      image: mcr.microsoft.com/playwright:v1.48.1-jammy
+      image: mcr.microsoft.com/playwright:v1.51.1-jammy
       options: --user 1001
     steps:
       - uses: actions/checkout@v4
