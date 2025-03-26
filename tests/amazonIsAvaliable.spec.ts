@@ -14,16 +14,21 @@ test.setTimeout(30 * 1000);
 dotenv.config({ path: '.env', override: true });
 
 test.beforeEach(async ({ browser }) => {
-    page = await browser.newPage();
-    await page.waitForTimeout(3000);
-    utils = new Utils(page);
-    captcha = new Captcha(page);
-    await utils.navigateToBaseURL();
+  page = await browser.newPage();
+  await page.waitForTimeout(3000);
+  utils = new Utils(page);
+  captcha = new Captcha(page);
+  await utils.navigateToBaseURL();
 });
 
-test('Check if amazon.com is available @smoke', async () => {
-    await captcha.handleCaptchaIfPresent();
-    await utils.checkPageURL('amazon'); 
-    const title = await page.title(); 
-    expect(title).toContain('Amazon');
+/**
+ * @smoke - Smoke test for verifying Amazon.com is available
+ * @critical - Critical functionality test
+ * @coverage - This test covers basic site availability
+ */
+test('Check if amazon.com is available @smoke @critical @coverage', async () => {
+  await captcha.handleCaptchaIfPresent();
+  await utils.checkPageURL('amazon'); 
+  const title = await page.title(); 
+  expect(title).toContain('Amazon');
 });
