@@ -90,7 +90,7 @@ export default class Delivery {
     }
 
     public async deliveryToSelected(destination: string): Promise<void> {
-        const value = await this.page.locator(this.locators.deliveryLocation).textContent();
+        const value = (await this.page.locator(this.locators.deliveryLocation).textContent()).trim();
         expect(value).toContain(destination);
     }
 
