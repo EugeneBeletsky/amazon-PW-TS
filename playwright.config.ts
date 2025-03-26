@@ -1,16 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
-import {PlaywrightTestConfig} from "@playwright/test";
+import { PlaywrightTestConfig } from '@playwright/test';
+import dotenv from 'dotenv';
+
+// Configure dotenv
+dotenv.config();
 
 const config: PlaywrightTestConfig = {
   globalTimeout: 180000, // Maximum time the whole test suite can run,
   timeout: 180000, // Timeout for each test
 };
-
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -26,19 +24,27 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['html'],
+    ['allure-playwright'],
+    ['line']
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://127.0.0.1:3000',
 
-    // video: 'on-first-retry',  // Record video only on first retry
-    video: 'retain-on-failure',  // Record video only when a test fails
-    // video: 'on',  // Record video for all tests
-    // video: 'off', // Do not record video
-    // videoSize: { width: 1280, height: 720 }, // Optionally set the resolution
+    // Enhanced video settings
+    video: {
+      mode: 'retain-on-failure',
+      size: { width: 1280, height: 720 }
+    },
 
-    screenshot: 'only-on-failure',
+    // Enhanced screenshot settings
+    screenshot: {
+      mode: 'only-on-failure',
+      fullPage: true
+    },
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
