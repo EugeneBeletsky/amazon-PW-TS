@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "format": "prettier --write .",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
     "test": "playwright test",
     "test:smoke": "playwright test --grep @smoke",
     "test:regression": "playwright test --grep @regression",
@@ -14,26 +16,21 @@
     "test:parallel": "playwright test --workers=4",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
-    "report": "playwright show-report",
-    "codegen": "playwright codegen",
-    "allure:generate": "npx allure generate ./allure-results --clean",
-    "allure:open": "npx allure open ./allure-report",
-    "test:allure": "playwright test --reporter=allure-playwright",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
-    "test:coverage": "playwright test --grep @smoke --reporter=html,line,json"
+    "test:allure": "playwright test --reporter=allure-playwright --output=allure-results",
+    "allure:generate": "npx allure generate allure-results --clean",
+    "allure:open": "npx allure open allure-report",
+    "report": "playwright show-report"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.4.5",
-    "playwright": "^1.50.1",
     "@playwright/test": "^1.50.1",
     "typescript": "^5.5",
     "@types/node": "^22.5.0",
-    "moment": "2.29.4"
+    "dayjs": "^1.11.10"
   },
-  "devDependencies": {    
+  "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
     "allure-playwright": "^2.15.0",
