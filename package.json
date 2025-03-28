@@ -11,8 +11,6 @@
     "test:smoke": "playwright test --grep @smoke",
     "test:regression": "playwright test --grep @regression",
     "test:chrome": "playwright test --project=chromium",
-    "test:firefox": "playwright test --project=firefox",
-    "test:safari": "playwright test --project=webkit",
     "test:parallel": "playwright test --workers=4",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
@@ -21,22 +19,22 @@
     "allure:open": "npx allure open allure-report",
     "report": "playwright show-report"
   },
-  "author": "",
+  "author": "ybialetski",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.4.5",
-    "@playwright/test": "^1.50.1",
-    "typescript": "^5.5",
+    "@playwright/test": "^1.51.1",
+    "typescript": "^5.8.2",
     "@types/node": "^22.5.0",
     "dayjs": "^1.11.10"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.3.1",
-    "@typescript-eslint/parser": "^7.3.1",
-    "allure-playwright": "^2.15.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-playwright": "^1.5.2",
-    "npm": "^10.8.2",
-    "prettier": "^3.3.3"
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
+    "allure-playwright": "^3.2.1",
+    "eslint": "^9.23.0",
+    "eslint-plugin-playwright": "^2.2.0",
+    "npm": "^11.2.0",
+    "prettier": "^3.5.3"
   }
 }
